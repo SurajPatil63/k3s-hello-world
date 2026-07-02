@@ -1,54 +1,100 @@
 apiVersion: v1
+
 kind: ConfigMap
+
 metadata:
+
   name: hello-world-html
+
   namespace: hello-world
+
 data:
+
   index.html: |
 <!DOCTYPE html>
 <html>
 <head>
 <title>Automated k3s Deployment</title>
 <style>
+
           body {
+
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+
             background-color: #1e1e2e;
+
             color: #cdd6f4;
+
             display: flex;
+
             justify-content: center;
+
             align-items: center;
+
             height: 100vh;
+
             margin: 0;
+
           }
+
           .container {
+
             background-color: #313244;
+
             padding: 40px 60px;
+
             border-radius: 12px;
+
             box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+
             text-align: center;
+
             border-top: 5px solid #a6e3a1;
+
           }
+
           h1 {
+
             color: #a6e3a1;
+
             margin-bottom: 10px;
+
             font-size: 2.5em;
+
           }
+
           p {
+
             font-size: 1.2em;
+
             color: #bac2de;
+
             line-height: 1.6;
+
           }
+
           .highlight {
+
             color: #89b4fa;
+
             font-weight: bold;
+
           }
+
           .footer {
+
             margin-top: 30px;
+
             font-size: 0.95em;
+
             color: #a6adc8;
+
             background: #181825;
+
             padding: 10px;
+
             border-radius: 6px;
+
           }
 </style>
 </head>
@@ -61,3 +107,4 @@ data:
 </div>
 </body>
 </html>
+ 
