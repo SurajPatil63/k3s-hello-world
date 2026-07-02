@@ -1,4 +1,34 @@
-name: Deploy Hello World Nginx to k3s
+name: CI/CD Pipeline - Deploy to k3s
+ 
+on:
+  push:
+    branches:
+      - main
+ 
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+ 
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
+ 
+    - name: Set up Kubernetes Context
+      uses: azure/k8s-set-context@v3
+      with:
+        method: kubeconfig
+        kubeconfig: ${{ secrets.KUBE_CONFIG }}
+ 
+    - name: Deploy Manifests to k3s Cluster
+      run: |
+        kubectl apply -f k8s/namespace.yaml
+        kubectl apply -f k8s/configmap.yaml
+        kubectl apply -f k8s/deployment.yaml
+        kubectl apply -f k8s/service.yaml
+ 
+    - name: Verify Deployment Rollout
+      run: |
+        kubectl rollout status deployment/hello-world-nginx -n hello-worldname: Deploy Hello World Nginx to k3s
 
 # Triggers on every push to main that touches the k8s manifests,
 # plus manual dispatch for on-demand redeploys.
