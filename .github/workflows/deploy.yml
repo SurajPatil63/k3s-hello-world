@@ -1,0 +1,79 @@
+name: Deploy Hello World Nginx to k3s
+
+# Triggers on every push to main that touches the k8s manifests,
+# plus manual dispatch for on-demand redeploys.
+on:
+  push:
+    branches: [main]
+    paths:
+      - "k8s/**"
+      - ".github/workflows/deploy.yml"
+  workflow_dispatch: {}
+
+# Least-privilege token permissions for this workflow.
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    name: Lint & validate manifests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up kubectl
+        uses: azure/setup-kubectl@v4
+        with:
+          version: "v1.30.0"
+
+      - name: Dry-run validate manifests (client-side)
+        run: |
+          for f in k8s/namespace.yaml k8s/configmap.yaml k8s/deployment.yaml k8s/service.yaml; do
+            echo "Validating $f"
+            kubectl apply --dry-run=client -f "$f"
+          done
+
+  deploy:
+    name: Deploy to k3s cluster
+    needs: validate
+    runs-on: ubuntu-latest
+    environment: production   # gives you a protected environment + required reviewers if desired
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up kubectl
+        uses: azure/setup-kubectl@v4
+        with:
+          version: "v1.30.0"
+
+      - name: Configure kubeconfig from secret
+        run: |
+          mkdir -p "$HOME/.kube"
+          echo "${{ secrets.KUBE_CONFIG }}" | base64 --decode > "$HOME/.kube/config"
+          chmod 600 "$HOME/.kube/config"
+
+      - name: Verify cluster connectivity
+        run: kubectl get nodes -o wide
+
+      - name: Apply namespace
+        run: kubectl apply -f k8s/namespace.yaml
+
+      - name: Apply ConfigMap, Deployment, and Service
+        run: |
+          kubectl apply -f k8s/configmap.yaml
+          kubectl apply -f k8s/deployment.yaml
+          kubectl apply -f k8s/service.yaml
+
+      - name: Wait for rollout to complete
+        run: kubectl rollout status deployment/hello-world-nginx -n hello-world --timeout=120s
+
+      - name: Show deployment summary
+        run: |
+          kubectl get pods -n hello-world -o wide
+          kubectl get svc -n hello-world
+
+      - name: Remove temporary kubeconfig
+        if: always()
+        run: rm -f "$HOME/.kube/config"
