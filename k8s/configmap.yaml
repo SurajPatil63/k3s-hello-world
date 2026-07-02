@@ -57,7 +57,7 @@ data:
           <h1>🚀 Pipeline Success!</h1>
           <p>Welcome to a fully automated <span class="highlight">k3s cluster</span> hosted on AWS.</p>
           <p>Infrastructure deployed via GitOps and GitHub Actions.</p>
-          <div class="footer">Deployed by Rahul • Senior CloudOps Engineer</div>
+          <div class="footer">Deployed by Suraj • Senior Devops Engineer</div>
         </div>
       </body>
     </html>
